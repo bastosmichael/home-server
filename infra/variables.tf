@@ -33,3 +33,25 @@ variable "enable_cs2" {
   type        = bool
   default     = false
 }
+
+# Server Configuration Variables
+variable "ark_server_password" {
+  description = "ARK server password (leave empty for no password)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "ark_admin_password" {
+  description = "ARK server admin password"
+  type        = string
+  default     = "change-me-admin-pass"
+  sensitive   = true
+}
+
+variable "cs2_gslt" {
+  description = "CS2 Game Server Login Token from Steam"
+  type        = string
+  default     = ""
+  sensitive   = true
+}

@@ -80,6 +80,15 @@ terraform apply -var="docker_host=tcp://192.168.1.100:2375"
 | `enable_rust` | Enable Rust server stack deployment | `false` |
 | `enable_ark` | Enable ARK server stack deployment | `false` |
 | `enable_cs2` | Enable CS2 server stack deployment | `false` |
+| `ark_server_password` | ARK server password (leave empty for no password) | `""` (sensitive) |
+| `ark_admin_password` | ARK server admin password | `"change-me-admin-pass"` (sensitive) |
+| `cs2_gslt` | CS2 Game Server Login Token from Steam | `""` (sensitive) |
+
+### Important Security Notes
+
+- **ARK Server**: Change the default `ark_admin_password` before deploying to production
+- **CS2 Server**: Obtain a Game Server Login Token (GSLT) from [Steam Game Server Account Management](https://steamcommunity.com/dev/managegameservers)
+- All sensitive variables are marked as sensitive and will not be displayed in Terraform output
 
 ## Outputs
 

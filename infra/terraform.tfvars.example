@@ -1,0 +1,21 @@
+# Example Terraform variables configuration
+# Copy this file to terraform.tfvars and customize as needed
+
+# Docker daemon connection
+# docker_host = "unix:///var/run/docker.sock"
+# docker_host = "tcp://192.168.1.100:2375"
+
+# Enable/disable stacks
+enable_portainer = true
+enable_ollama    = false
+enable_rust      = false
+enable_ark       = false
+enable_cs2       = false
+
+# ARK Server Configuration (only required if enable_ark = true)
+# ark_server_password = "your-server-password"
+# ark_admin_password  = "your-admin-password"
+
+# CS2 Server Configuration (only required if enable_cs2 = true)
+# Get your GSLT from: https://steamcommunity.com/dev/managegameservers
+# cs2_gslt = "your-game-server-login-token"

@@ -158,8 +158,8 @@ resource "docker_container" "ark" {
     "GAME_PORT=7777",
     "QUERY_PORT=27015",
     "RCON_PORT=27020",
-    "SERVER_PASSWORD=",
-    "ADMIN_PASSWORD=adminpass"
+    "SERVER_PASSWORD=${var.ark_server_password}",
+    "ADMIN_PASSWORD=${var.ark_admin_password}"
   ]
   
   volumes {
@@ -203,7 +203,7 @@ resource "docker_container" "cs2" {
     "CS2_SERVERNAME=CS2 Server",
     "CS2_PORT=27015",
     "CS2_MAXPLAYERS=32",
-    "CS2_GSLT="
+    "CS2_GSLT=${var.cs2_gslt}"
   ]
   
   volumes {
