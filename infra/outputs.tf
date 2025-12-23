@@ -23,6 +23,11 @@ output "cs2_server_port" {
   value       = var.enable_cs2 ? "27015" : "CS2 server not enabled"
 }
 
+output "minecraft_server_port" {
+  description = "Minecraft server connection port"
+  value       = var.enable_minecraft ? "25565" : "Minecraft server not enabled"
+}
+
 output "deployed_stacks" {
   description = "List of deployed stacks"
   value = concat(
@@ -30,6 +35,7 @@ output "deployed_stacks" {
     var.enable_ollama ? ["ollama"] : [],
     var.enable_rust ? ["rust"] : [],
     var.enable_ark ? ["ark"] : [],
-    var.enable_cs2 ? ["cs2"] : []
+    var.enable_cs2 ? ["cs2"] : [],
+    var.enable_minecraft ? ["minecraft"] : []
   )
 }

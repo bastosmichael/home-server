@@ -11,6 +11,7 @@ enable_ollama    = false
 enable_rust      = false
 enable_ark       = false
 enable_cs2       = false
+enable_minecraft = false
 
 # ARK Server Configuration (only required if enable_ark = true)
 # ark_server_password = "your-server-password"

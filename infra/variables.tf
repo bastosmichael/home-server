@@ -34,6 +34,12 @@ variable "enable_cs2" {
   default     = false
 }
 
+variable "enable_minecraft" {
+  description = "Enable Minecraft server stack deployment"
+  type        = bool
+  default     = false
+}
+
 # Server Configuration Variables
 variable "ark_server_password" {
   description = "ARK server password (leave empty for no password)"

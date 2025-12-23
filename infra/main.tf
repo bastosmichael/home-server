@@ -40,7 +40,7 @@ resource "null_resource" "bootstrap_docker" {
       # "sudo usermod -aG docker $USER || true",
 
       # Create stack dirs
-      "sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2",
+      "sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2 /opt/minecraft",
       "sudo mkdir -p /opt/cs2/data",
       "sudo chown -R 1000:1000 /opt/cs2/data || true",
     ]
@@ -78,6 +78,10 @@ resource "null_resource" "deploy_stacks" {
     source      = "${path.module}/stacks/cs2/docker-compose.yml"
     destination = "/tmp/cs2.docker-compose.yml"
   }
+  provisioner "file" {
+    source      = "${path.module}/stacks/minecraft/docker-compose.yml"
+    destination = "/tmp/minecraft.docker-compose.yml"
+  }
 
   provisioner "remote-exec" {
     inline = [
@@ -86,6 +90,7 @@ resource "null_resource" "deploy_stacks" {
       "sudo mv /tmp/ollama.docker-compose.yml /opt/ollama/docker-compose.yml",
       "sudo mv /tmp/rust.docker-compose.yml /opt/rust-server/docker-compose.yml",
       "sudo mv /tmp/ark.docker-compose.yml /opt/ark/docker-compose.yml",
+      "sudo mv /tmp/minecraft.docker-compose.yml /opt/minecraft/docker-compose.yml",
       
       # Render CS2 Template
       "sudo mkdir -p /opt/cs2",
@@ -106,6 +111,9 @@ resource "null_resource" "deploy_stacks" {
 
       # Stack: CS2
       "${var.enable_cs2 ? "cd /opt/cs2 && sudo docker compose up -d" : "echo 'Skipping CS2'"}",
+
+      # Stack: Minecraft
+      "${var.enable_minecraft ? "cd /opt/minecraft && sudo docker compose up -d" : "echo 'Skipping Minecraft'"}",
     ]
   }
 }
