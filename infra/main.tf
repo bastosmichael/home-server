@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     null = {
       source  = "hashicorp/null"
@@ -35,7 +35,7 @@ resource "null_resource" "bootstrap_docker" {
 
       # Enable docker at boot
       # "sudo systemctl enable --now docker",
-      
+
       # Ensure current user is in docker group (requires relogin, but good for future)
       # "sudo usermod -aG docker $USER || true",
 
@@ -91,7 +91,7 @@ resource "null_resource" "deploy_stacks" {
       "sudo mv /tmp/rust.docker-compose.yml /opt/rust-server/docker-compose.yml",
       "sudo mv /tmp/ark.docker-compose.yml /opt/ark/docker-compose.yml",
       "sudo mv /tmp/minecraft.docker-compose.yml /opt/minecraft/docker-compose.yml",
-      
+
       # Render CS2 Template
       "sudo mkdir -p /opt/cs2",
       "sudo sed -e 's/__CS2_GSLT__/${var.cs2_gslt}/g' /tmp/cs2.docker-compose.yml | sudo tee /opt/cs2/docker-compose.yml >/dev/null",
