@@ -42,7 +42,16 @@ infra/            # Terraform configuration
    * **ARK:** Connect via Steam to `<server-ip>:7777` (UDP)
    * **Rust:** Connect via Steam to `<server-ip>:28015`
 
+## System Prerequisites
+Before running Terraform, you must ensure:
+1.  **SSH Access:** Keys are copied to the server (`ssh-copy-id`).
+2.  **Passwordless Sudo:** The user must be able to run sudo without a password for Terraform automation.
+    Run this on the server (or via SSH) once:
+    ```bash
+    ssh -t michael@<server-ip> "echo 'michael ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/michael"
+    ```
+
 ## Bootstrapping Details
 Terraform uses SSH to connect to the server. Ensure you have:
 1. SSH access to the server via public key (`ssh-copy-id`).
-2. Sudo privileges on the server.
+2. Sudo privileges on the server (NOPASSWD recommended).
