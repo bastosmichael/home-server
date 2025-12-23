@@ -40,9 +40,7 @@ resource "null_resource" "bootstrap_docker" {
       # "sudo usermod -aG docker $USER || true",
 
       # Create stack dirs
-      "sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2 /opt/minecraft /opt/plex \
-        /opt/tf2 /opt/garrysmod /opt/insurgency-sandstorm /opt/squad /opt/squad44 /opt/satisfactory /opt/factorio \
-        /opt/eco /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3",
+      "sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2 /opt/minecraft /opt/plex /opt/tf2 /opt/garrysmod /opt/insurgency-sandstorm /opt/squad /opt/squad44 /opt/satisfactory /opt/factorio /opt/eco /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3",
       "sudo mkdir -p /opt/cs2/data",
       "sudo mkdir -p /opt/plex/media",
       "sudo chown -R 1000:1000 /opt/cs2/data || true",
@@ -130,7 +128,7 @@ resource "null_resource" "deploy_stacks" {
         ${var.enable_minecraft ? "cd /opt/minecraft && (sudo docker rm -f minecraft-server || true) && sudo docker compose up -d" : "echo 'Skipping Minecraft'"}
         ${var.enable_plex ? "cd /opt/plex && (sudo docker rm -f plex || true) && sudo docker compose up -d" : "echo 'Skipping Plex'"}
         ${var.enable_tf2 ? "cd /opt/tf2 && (sudo docker rm -f tf2-server || true) && sudo docker compose up -d" : "echo 'Skipping TF2'"}
-        ${var.enable_garrysmod ? "cd /opt/garrysmod && (sudo docker rm -f garrysmod-server || true) && sudo docker compose up -d" : "echo 'Skipping Garry\'s Mod'"}
+        ${var.enable_garrysmod ? "cd /opt/garrysmod && (sudo docker rm -f garrysmod-server || true) && sudo docker compose up -d" : "echo \"Skipping Garry's Mod\""}
         ${var.enable_insurgency_sandstorm ? "cd /opt/insurgency-sandstorm && (sudo docker rm -f insurgency-sandstorm-server || true) && sudo docker compose up -d" : "echo 'Skipping Insurgency: Sandstorm'"}
         ${var.enable_squad ? "cd /opt/squad && (sudo docker rm -f squad-server || true) && sudo docker compose up -d" : "echo 'Skipping Squad'"}
         ${var.enable_squad44 ? "cd /opt/squad44 && (sudo docker rm -f squad44-server || true) && sudo docker compose up -d" : "echo 'Skipping Squad 44'"}
