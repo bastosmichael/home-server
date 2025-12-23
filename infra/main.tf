@@ -2,222 +2,110 @@ terraform {
   required_version = ">= 1.0"
   
   required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "~> 3.0"
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3.2.2"
     }
   }
 }
 
-provider "docker" {
-  host = var.docker_host
-}
+provider "null" {}
 
-# Portainer Stack
-resource "docker_container" "portainer" {
-  count = var.enable_portainer ? 1 : 0
-  
-  name  = "portainer"
-  image = docker_image.portainer[0].image_id
-  
-  restart = "unless-stopped"
-  
-  ports {
-    internal = 9000
-    external = 9000
+resource "null_resource" "bootstrap_docker" {
+  connection {
+    type        = "ssh"
+    host        = replace(var.docker_host, "ssh://michael@", "") # Extract IP from docker_host string
+    user        = "michael"
+    # Agent is used automatically
   }
-  
-  ports {
-    internal = 8000
-    external = 8000
-  }
-  
-  volumes {
-    host_path      = "/var/run/docker.sock"
-    container_path = "/var/run/docker.sock"
-  }
-  
-  volumes {
-    volume_name    = docker_volume.portainer_data[0].name
-    container_path = "/data"
-  }
-}
 
-resource "docker_image" "portainer" {
-  count = var.enable_portainer ? 1 : 0
-  name  = "portainer/portainer-ce:latest"
-}
+  provisioner "remote-exec" {
+    inline = [
+      # Basic deps
+      # "sudo apt-get update -y",
+      # "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
 
-resource "docker_volume" "portainer_data" {
-  count = var.enable_portainer ? 1 : 0
-  name  = "portainer_data"
-}
+      # Install Docker Engine + compose plugin (official repo)
+      # "sudo install -m 0755 -d /etc/apt/keyrings",
+      # "sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc",
+      # "sudo chmod a+r /etc/apt/keyrings/docker.asc",
+      # "sudo bash -lc 'source /etc/os-release; cat > /etc/apt/sources.list.d/docker.sources <<EOF\nTypes: deb\nURIs: https://download.docker.com/linux/ubuntu\nSuites: $${UBUNTU_CODENAME:-$VERSION_CODENAME}\nComponents: stable\nSigned-By: /etc/apt/keyrings/docker.asc\nEOF'",
+      # "sudo apt-get update -y",
+      # "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
 
-# Ollama Stack
-resource "docker_container" "ollama" {
-  count = var.enable_ollama ? 1 : 0
-  
-  name  = "ollama"
-  image = docker_image.ollama[0].image_id
-  
-  restart = "unless-stopped"
-  
-  ports {
-    internal = 11434
-    external = 11434
-  }
-  
-  volumes {
-    volume_name    = docker_volume.ollama_data[0].name
-    container_path = "/root/.ollama"
+      # Enable docker at boot
+      # "sudo systemctl enable --now docker",
+      
+      # Ensure current user is in docker group (requires relogin, but good for future)
+      # "sudo usermod -aG docker $USER || true",
+
+      # Create stack dirs
+      "sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2",
+      "sudo mkdir -p /opt/cs2/data",
+      "sudo chown -R 1000:1000 /opt/cs2/data || true",
+    ]
   }
 }
 
-resource "docker_image" "ollama" {
-  count = var.enable_ollama ? 1 : 0
-  name  = "ollama/ollama:latest"
-}
+# Deploy Stacks
+resource "null_resource" "deploy_stacks" {
+  depends_on = [null_resource.bootstrap_docker]
 
-resource "docker_volume" "ollama_data" {
-  count = var.enable_ollama ? 1 : 0
-  name  = "ollama_data"
-}
+  connection {
+    type        = "ssh"
+    host        = replace(var.docker_host, "ssh://michael@", "")
+    user        = "michael"
+  }
 
-# Rust Server Stack
-resource "docker_container" "rust" {
-  count = var.enable_rust ? 1 : 0
-  
-  name  = "rust-server"
-  image = docker_image.rust[0].image_id
-  
-  restart = "unless-stopped"
-  
-  ports {
-    internal = 28015
-    external = 28015
+  # Copy Compose Files
+  provisioner "file" {
+    source      = "${path.module}/stacks/portainer/docker-compose.yml"
+    destination = "/tmp/portainer.docker-compose.yml"
   }
-  
-  ports {
-    internal = 28016
-    external = 28016
+  provisioner "file" {
+    source      = "${path.module}/stacks/ollama/docker-compose.yml"
+    destination = "/tmp/ollama.docker-compose.yml"
   }
-  
-  env = [
-    "RUST_SERVER_STARTUP_ARGUMENTS=-batchmode -load +server.secure 1",
-    "RUST_SERVER_IDENTITY=docker",
-    "RUST_SERVER_SEED=12345",
-    "RUST_SERVER_WORLDSIZE=3000",
-    "RUST_SERVER_NAME=Rust Server",
-    "RUST_SERVER_MAXPLAYERS=50"
-  ]
-  
-  volumes {
-    volume_name    = docker_volume.rust_data[0].name
-    container_path = "/steamcmd/rust"
+  provisioner "file" {
+    source      = "${path.module}/stacks/rust/docker-compose.yml"
+    destination = "/tmp/rust.docker-compose.yml"
   }
-}
+  provisioner "file" {
+    source      = "${path.module}/stacks/ark/docker-compose.yml"
+    destination = "/tmp/ark.docker-compose.yml"
+  }
+  provisioner "file" {
+    source      = "${path.module}/stacks/cs2/docker-compose.yml"
+    destination = "/tmp/cs2.docker-compose.yml"
+  }
 
-resource "docker_image" "rust" {
-  count = var.enable_rust ? 1 : 0
-  name  = "didstopia/rust-server:latest"
-}
+  provisioner "remote-exec" {
+    inline = [
+      # Move files into place
+      "sudo mv /tmp/portainer.docker-compose.yml /opt/portainer/docker-compose.yml",
+      "sudo mv /tmp/ollama.docker-compose.yml /opt/ollama/docker-compose.yml",
+      "sudo mv /tmp/rust.docker-compose.yml /opt/rust-server/docker-compose.yml",
+      "sudo mv /tmp/ark.docker-compose.yml /opt/ark/docker-compose.yml",
+      
+      # Render CS2 Template
+      "sudo mkdir -p /opt/cs2",
+      "sudo sed -e 's/__CS2_GSLT__/${var.cs2_gslt}/g' /tmp/cs2.docker-compose.yml | sudo tee /opt/cs2/docker-compose.yml >/dev/null",
+      "sudo rm -f /tmp/cs2.docker-compose.yml",
 
-resource "docker_volume" "rust_data" {
-  count = var.enable_rust ? 1 : 0
-  name  = "rust_data"
-}
+      # Stack: Portainer
+      "${var.enable_portainer ? "cd /opt/portainer && sudo docker compose up -d" : "echo 'Skipping Portainer'"}",
 
-# ARK Server Stack
-resource "docker_container" "ark" {
-  count = var.enable_ark ? 1 : 0
-  
-  name  = "ark-server"
-  image = docker_image.ark[0].image_id
-  
-  restart = "unless-stopped"
-  
-  ports {
-    internal = 7777
-    external = 7777
-    protocol = "udp"
-  }
-  
-  ports {
-    internal = 7778
-    external = 7778
-    protocol = "udp"
-  }
-  
-  ports {
-    internal = 27015
-    external = 27015
-    protocol = "udp"
-  }
-  
-  env = [
-    "GAME_PORT=7777",
-    "QUERY_PORT=27015",
-    "RCON_PORT=27020",
-    "SERVER_PASSWORD=${var.ark_server_password}",
-    "ADMIN_PASSWORD=${var.ark_admin_password}"
-  ]
-  
-  volumes {
-    volume_name    = docker_volume.ark_data[0].name
-    container_path = "/ark"
-  }
-}
+      # Stack: Ollama
+      "${var.enable_ollama ? "cd /opt/ollama && sudo docker compose up -d" : "echo 'Skipping Ollama'"}",
 
-resource "docker_image" "ark" {
-  count = var.enable_ark ? 1 : 0
-  name  = "acekorneya/ark_ascended_docker:latest"
-}
+      # Stack: Rust
+      "${var.enable_rust ? "cd /opt/rust-server && sudo docker compose up -d" : "echo 'Skipping Rust'"}",
 
-resource "docker_volume" "ark_data" {
-  count = var.enable_ark ? 1 : 0
-  name  = "ark_data"
-}
+      # Stack: ARK
+      "${var.enable_ark ? "cd /opt/ark && sudo docker compose up -d" : "echo 'Skipping ARK'"}",
 
-# CS2 Server Stack
-resource "docker_container" "cs2" {
-  count = var.enable_cs2 ? 1 : 0
-  
-  name  = "cs2-server"
-  image = docker_image.cs2[0].image_id
-  
-  restart = "unless-stopped"
-  
-  ports {
-    internal = 27015
-    external = 27015
-    protocol = "tcp"
+      # Stack: CS2
+      "${var.enable_cs2 ? "cd /opt/cs2 && sudo docker compose up -d" : "echo 'Skipping CS2'"}",
+    ]
   }
-  
-  ports {
-    internal = 27015
-    external = 27015
-    protocol = "udp"
-  }
-  
-  env = [
-    "CS2_SERVERNAME=CS2 Server",
-    "CS2_PORT=27015",
-    "CS2_MAXPLAYERS=32",
-    "CS2_GSLT=${var.cs2_gslt}"
-  ]
-  
-  volumes {
-    volume_name    = docker_volume.cs2_data[0].name
-    container_path = "/home/steam/cs2-dedicated"
-  }
-}
-
-resource "docker_image" "cs2" {
-  count = var.enable_cs2 ? 1 : 0
-  name  = "joedwards32/cs2:latest"
-}
-
-resource "docker_volume" "cs2_data" {
-  count = var.enable_cs2 ? 1 : 0
-  name  = "cs2_data"
 }
