@@ -1,4 +1,4 @@
-# Home Server Infrastructure
+# Home Gaming Server Infrastructure
 
 This project manages a home server running various Docker stacks using Terraform, with a focus on self-hosted game servers plus a few media/tooling containers.
 
