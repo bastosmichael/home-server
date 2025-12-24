@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    user: "1000:1000"
+    environment:
+      - ND_SCANINTERVAL=1m
+      - TZ=Etc/UTC
+    ports:
+      - "0.0.0.0:4533:4533"
+    volumes:
+      - navidrome_data:/data
+      - /opt/navidrome/music:/music
+    restart: unless-stopped
+
+volumes:
+  navidrome_data:

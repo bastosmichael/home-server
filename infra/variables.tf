@@ -46,6 +46,36 @@ variable "enable_plex" {
   default     = false
 }
 
+variable "enable_jellyfin" {
+  description = "Enable Jellyfin stack deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_immich" {
+  description = "Enable Immich stack deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_navidrome" {
+  description = "Enable Navidrome stack deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_audiobookshelf" {
+  description = "Enable Audiobookshelf stack deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_nextcloud" {
+  description = "Enable Nextcloud stack deployment"
+  type        = bool
+  default     = false
+}
+
 variable "enable_tf2" {
   description = "Enable Team Fortress 2 server deployment"
   type        = bool

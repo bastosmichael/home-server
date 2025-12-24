@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:release
+    container_name: immich-server
+    depends_on:
+      - immich-postgres
+      - immich-redis
+    environment:
+      - DB_HOST=immich-postgres
+      - DB_PORT=5432
+      - DB_USERNAME=immich
+      - DB_PASSWORD=immich
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOST=immich-redis
+      - IMMICH_MEDIA_LOCATION=/usr/src/app/upload
+    volumes:
+      - /opt/immich/library:/usr/src/app/upload
+    ports:
+      - "0.0.0.0:2283:2283"
+    restart: unless-stopped
+
+  immich-microservices:
+    image: ghcr.io/immich-app/immich-microservices:release
+    container_name: immich-microservices
+    depends_on:
+      - immich-postgres
+      - immich-redis
+    environment:
+      - DB_HOST=immich-postgres
+      - DB_PORT=5432
+      - DB_USERNAME=immich
+      - DB_PASSWORD=immich
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOST=immich-redis
+      - IMMICH_MEDIA_LOCATION=/usr/src/app/upload
+    volumes:
+      - /opt/immich/library:/usr/src/app/upload
+    restart: unless-stopped
+
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:release
+    container_name: immich-machine-learning
+    environment:
+      - TRANSFORMERS_CACHE=/cache
+    volumes:
+      - immich_ml:/cache
+    restart: unless-stopped
+
+  immich-redis:
+    image: redis:7
+    container_name: immich-redis
+    restart: unless-stopped
+
+  immich-postgres:
+    image: postgres:14
+    container_name: immich-postgres
+    environment:
+      - POSTGRES_USER=immich
+      - POSTGRES_PASSWORD=immich
+      - POSTGRES_DB=immich
+    volumes:
+      - immich_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  immich_pgdata:
+  immich_ml:

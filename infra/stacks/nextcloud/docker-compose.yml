@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    depends_on:
+      - nextcloud-db
+      - nextcloud-redis
+    environment:
+      - MYSQL_HOST=nextcloud-db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+      - REDIS_HOST=nextcloud-redis
+      - REDIS_HOST_PASSWORD=nextcloud
+    ports:
+      - "0.0.0.0:8080:80"
+    volumes:
+      - /opt/nextcloud/html:/var/www/html
+    restart: unless-stopped
+
+  nextcloud-db:
+    image: mariadb:10.6
+    container_name: nextcloud-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeme
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+    volumes:
+      - nextcloud_db:/var/lib/mysql
+    restart: unless-stopped
+
+  nextcloud-redis:
+    image: redis:7
+    container_name: nextcloud-redis
+    command: redis-server --requirepass nextcloud
+    restart: unless-stopped
+
+volumes:
+  nextcloud_db:
