@@ -21,24 +21,6 @@ services:
       - "2283:2283"
     restart: unless-stopped
 
-  immich-microservices:
-    image: ghcr.io/immich-app/immich-microservices:release
-    container_name: immich-microservices
-    depends_on:
-      - immich-postgres
-      - immich-redis
-    environment:
-      - DB_HOST=immich-postgres
-      - DB_PORT=5432
-      - DB_USERNAME=immich
-      - DB_PASSWORD=immich
-      - DB_DATABASE_NAME=immich
-      - REDIS_HOST=immich-redis
-      - IMMICH_MEDIA_LOCATION=/usr/src/app/upload
-    volumes:
-      - /opt/immich/library:/usr/src/app/upload
-    restart: unless-stopped
-
   immich-machine-learning:
     image: ghcr.io/immich-app/immich-machine-learning:release
     container_name: immich-machine-learning
