@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - --entrypoints.web.address=:80
+      - --providers.docker=true
+      - --providers.docker.network=proxy
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.defaultRule=Host(`{{ normalize .Name }}.lan`)
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    name: proxy
+    external: true
