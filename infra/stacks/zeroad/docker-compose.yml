@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  zeroad-server:
+    image: itms0/0ad:latest
+    container_name: zeroad-server
+    restart: unless-stopped
+    ports:
+      - "20595:20595/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - zeroad_data:/home/0ad/.config/0ad
+
+volumes:
+  zeroad_data:

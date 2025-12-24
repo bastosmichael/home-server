@@ -1,4 +1,12 @@
-# Home Gaming Server Infrastructure
+
+   | [Minetest](https://www.minetest.net/) | UDP: `<server-ip>:30000` | In Multiplayer, click **Add Server** and enter `<server-ip>` with port `30000`, then join. |
+   | [OpenRCT2](https://openrct2.io/) | TCP/UDP: `<server-ip>:11753` | From the main menu, open **Multiplayer** → **Direct connect** and enter `<server-ip>:11753`; ensure you have the original game assets. |
+   | [OpenTTD](https://www.openttd.org/) | TCP/UDP: `<server-ip>:3979` | In Multiplayer, add `<server-ip>:3979` as a server or connect via LAN/Internet lists after forwarding both ports. |
+   | [0 A.D.](https://play0ad.com/) | UDP: `<server-ip>:20595` | In **Multiplayer**, choose **Host/Join**, then direct connect to `<server-ip>:20595` (share any password you set). |
+   | [OpenRA](https://www.openra.net/) | TCP/UDP: `<server-ip>:1234` | From the main menu, choose **Multiplayer** → **Direct Connect** and enter `<server-ip>:1234`. |
+   | [Teeworlds / DDNet](https://www.teeworlds.com/) | UDP: `<server-ip>:8303` (Teeworlds), `<server-ip>:8304` (DDNet) | Add `<server-ip>:8303` to favorites in the in-game browser for vanilla, or `<server-ip>:8304` for DDNet; refresh and join. |
+   | [Xonotic](https://xonotic.org/) | UDP/TCP: `<server-ip>:26000` | Open **Multiplayer** → **Servers**, add a favorite or console connect to `<server-ip>:26000`. |
+   | [ioquake3 / Quake 3](https://ioquake3.org/) | UDP: `<server-ip>:27960` | Open the console and run `connect <server-ip>:27960`, or add a favorite server with that address. |# Home Gaming Server Infrastructure
 
 This project manages a home server running various Docker stacks using Terraform, with a focus on self-hosted game servers plus a few media/tooling containers.
 
@@ -13,6 +21,7 @@ infra/            # Terraform configuration
     # Game servers
     ark/ cs2/ minecraft/ rust/ tf2/ garrysmod/ insurgency_sandstorm/ squad/ squad44/
     satisfactory/ factorio/ eco/ space_engineers/ starbound/ aoe2de/ palworld/ arma3/
+    minetest/ openrct2/ openttd/ zeroad/ openra/ teeworlds/ xonotic/ ioquake3/
     # Media & tooling
     portainer/ ollama/ plex/
 ```
@@ -47,7 +56,15 @@ infra/            # Terraform configuration
      -var="enable_starbound=true" \
      -var="enable_aoe2de=true" \
      -var="enable_palworld=true" \
-     -var="enable_arma3=true"
+     -var="enable_arma3=true" \
+     -var="enable_minetest=true" \
+     -var="enable_openrct2=true" \
+     -var="enable_openttd=true" \
+     -var="enable_zeroad=true" \
+     -var="enable_openra=true" \
+     -var="enable_teeworlds=true" \
+     -var="enable_xonotic=true" \
+     -var="enable_ioquake3=true"
    ```
 
    **Note:** replace `192.168.86.38` with your actual server IP.
@@ -78,6 +95,14 @@ infra/            # Terraform configuration
    | [Age of Empires II: Definitive Edition](https://www.ageofempires.com/games/aoeiide/) | UDP: `<server-ip>:27020`, `<server-ip>:27021` | Create or join a **Custom/LAN** lobby and direct connect to `<server-ip>:27020`; keep query port 27021 open for lobby visibility. |
    | [Palworld](https://store.steampowered.com/app/1623730/PALWORLD/) | UDP: `<server-ip>:8211`, Query UDP: `<server-ip>:27023` | In **Join Multiplayer** enter `<server-ip>:8211` (or share an invite code if enabled); keep query port 27023 open for listings. |
    | [Arma 3](https://store.steampowered.com/app/107410/Arma_3/) | UDP: `<server-ip>:2302-2305` | From the Launcher server browser, add `<server-ip>` to Favorites (default port 2302), refresh, and connect; ensure 2303-2305 remain open for Steam queries. |
+   | [Minetest](https://www.minetest.net/) | UDP: `<server-ip>:30000` | In Multiplayer, click **Add Server** and enter `<server-ip>` with port `30000`, then join. |
+   | [OpenRCT2](https://openrct2.io/) | TCP/UDP: `<server-ip>:11753` | From the main menu, open **Multiplayer** → **Direct connect** and enter `<server-ip>:11753`; ensure you have the original game assets. |
+   | [OpenTTD](https://www.openttd.org/) | TCP/UDP: `<server-ip>:3979` | In Multiplayer, add `<server-ip>:3979` as a server or connect via LAN/Internet lists after forwarding both ports. |
+   | [0 A.D.](https://play0ad.com/) | UDP: `<server-ip>:20595` | In **Multiplayer**, choose **Host/Join**, then direct connect to `<server-ip>:20595` (share any password you set). |
+   | [OpenRA](https://www.openra.net/) | TCP/UDP: `<server-ip>:1234` | From the main menu, choose **Multiplayer** → **Direct Connect** and enter `<server-ip>:1234`. |
+   | [Teeworlds / DDNet](https://www.teeworlds.com/) | UDP: `<server-ip>:8303` (Teeworlds), `<server-ip>:8304` (DDNet) | Add `<server-ip>:8303` to favorites in the in-game browser for vanilla, or `<server-ip>:8304` for DDNet; refresh and join. |
+   | [Xonotic](https://xonotic.org/) | UDP/TCP: `<server-ip>:26000` | Open **Multiplayer** → **Servers**, add a favorite or console connect to `<server-ip>:26000`. |
+   | [ioquake3 / Quake 3](https://ioquake3.org/) | UDP: `<server-ip>:27960` | Open the console and run `connect <server-ip>:27960`, or add a favorite server with that address. |
 
 ## System Prerequisites
 Before running Terraform, you must ensure:

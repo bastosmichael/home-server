@@ -124,6 +124,54 @@ variable "enable_arma3" {
   default     = false
 }
 
+variable "enable_minetest" {
+  description = "Enable Minetest server deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_openrct2" {
+  description = "Enable OpenRCT2 server deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_openttd" {
+  description = "Enable OpenTTD server deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_zeroad" {
+  description = "Enable 0 A.D. server deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_openra" {
+  description = "Enable OpenRA server deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_teeworlds" {
+  description = "Enable Teeworlds/DDNet server deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_xonotic" {
+  description = "Enable Xonotic server deployment"
+  type        = bool
+  default     = false
+}
+
+variable "enable_ioquake3" {
+  description = "Enable ioquake3/Quake 3 server deployment"
+  type        = bool
+  default     = false
+}
+
 # Server Configuration Variables
 variable "ark_server_password" {
   description = "ARK server password (leave empty for no password)"

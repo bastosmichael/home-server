@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  openttd-server:
+    image: lscr.io/linuxserver/openttd:latest
+    container_name: openttd-server
+    restart: unless-stopped
+    ports:
+      - "3979:3979/tcp"
+      - "3979:3979/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - openttd_data:/config
+
+volumes:
+  openttd_data:

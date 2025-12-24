@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  ioquake3-server:
+    image: wouterdebie/quake3:latest
+    container_name: ioquake3-server
+    restart: unless-stopped
+    ports:
+      - "27960:27960/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ioquake3_data:/quake3/baseq3
+
+volumes:
+  ioquake3_data:

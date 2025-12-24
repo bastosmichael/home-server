@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  minetest-server:
+    image: lscr.io/linuxserver/minetest:latest
+    container_name: minetest-server
+    restart: unless-stopped
+    ports:
+      - "30000:30000/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - minetest_data:/config
+
+volumes:
+  minetest_data:

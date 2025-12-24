@@ -40,7 +40,7 @@ resource "null_resource" "bootstrap_docker" {
       # "sudo usermod -aG docker $USER || true",
 
       # Create stack dirs
-      "sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2 /opt/minecraft /opt/plex /opt/tf2 /opt/garrysmod /opt/insurgency-sandstorm /opt/squad /opt/squad44 /opt/satisfactory /opt/factorio /opt/eco /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3",
+      "sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2 /opt/minecraft /opt/plex /opt/tf2 /opt/garrysmod /opt/insurgency-sandstorm /opt/squad /opt/squad44 /opt/satisfactory /opt/factorio /opt/eco /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3 /opt/minetest /opt/openrct2 /opt/openttd /opt/zeroad /opt/openra /opt/teeworlds /opt/xonotic /opt/ioquake3",
       "sudo mkdir -p /opt/cs2/data",
       "sudo mkdir -p /opt/plex/media",
       "sudo chown -R 1000:1000 /opt/cs2/data || true",
@@ -79,6 +79,14 @@ resource "null_resource" "deploy_stacks" {
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/aoe2de/docker-compose.yml" "$USER@$HOST:/tmp/aoe2de.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/palworld/docker-compose.yml" "$USER@$HOST:/tmp/palworld.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/arma3/docker-compose.yml" "$USER@$HOST:/tmp/arma3.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/minetest/docker-compose.yml" "$USER@$HOST:/tmp/minetest.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/openrct2/docker-compose.yml" "$USER@$HOST:/tmp/openrct2.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/openttd/docker-compose.yml" "$USER@$HOST:/tmp/openttd.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/zeroad/docker-compose.yml" "$USER@$HOST:/tmp/zeroad.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/openra/docker-compose.yml" "$USER@$HOST:/tmp/openra.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/teeworlds/docker-compose.yml" "$USER@$HOST:/tmp/teeworlds.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/xonotic/docker-compose.yml" "$USER@$HOST:/tmp/xonotic.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/ioquake3/docker-compose.yml" "$USER@$HOST:/tmp/ioquake3.docker-compose.yml"
 
       # Execute Remote Setup via SSH
       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$USER@$HOST" 'bash -s' <<'REMOTE_SCRIPT'
@@ -128,11 +136,13 @@ resource "null_resource" "deploy_stacks" {
         # Ensure directories exist (in case bootstrap didn't run or new ones matched)
         sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2 /opt/minecraft /opt/plex \
           /opt/tf2 /opt/garrysmod /opt/insurgency-sandstorm /opt/squad /opt/squad44 /opt/satisfactory /opt/factorio \
-          /opt/eco /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3
+          /opt/eco /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3 /opt/minetest /opt/openrct2 \
+          /opt/openttd /opt/zeroad /opt/openra /opt/teeworlds /opt/xonotic /opt/ioquake3
         sudo mkdir -p /opt/cs2/data /opt/plex/media
         sudo chown -R 1000:1000 /opt/cs2/data /opt/ark /opt/plex /opt/portainer /opt/ollama /opt/rust-server /opt/minecraft \
           /opt/tf2 /opt/garrysmod /opt/insurgency-sandstorm /opt/squad /opt/squad44 /opt/satisfactory /opt/factorio /opt/eco \
-          /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3 || true
+          /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3 /opt/minetest /opt/openrct2 /opt/openttd \
+          /opt/zeroad /opt/openra /opt/teeworlds /opt/xonotic /opt/ioquake3 || true
 
         # Configure Firewall (UFW)
         echo "Configuring Firewall..."
@@ -172,6 +182,19 @@ resource "null_resource" "deploy_stacks" {
         sudo ufw allow 8211/udp      # Palworld
         sudo ufw allow 27023/udp     # Palworld
         sudo ufw allow 2302:2306/udp # Arma 3
+        sudo ufw allow 30000/udp     # Minetest
+        sudo ufw allow 11753/udp     # OpenRCT2
+        sudo ufw allow 11753/tcp     # OpenRCT2
+        sudo ufw allow 3979/udp      # OpenTTD
+        sudo ufw allow 3979/tcp      # OpenTTD
+        sudo ufw allow 20595/udp     # 0 A.D.
+        sudo ufw allow 1234/udp      # OpenRA
+        sudo ufw allow 1234/tcp      # OpenRA
+        sudo ufw allow 8303/udp      # Teeworlds / DDNet
+        sudo ufw allow 8304/udp      # DDNet Alternate Mapping
+        sudo ufw allow 26000/udp     # Xonotic
+        sudo ufw allow 26000/tcp     # Xonotic
+        sudo ufw allow 27960/udp     # ioquake3 / Quake 3
         sudo ufw --force enable || true
 
         # Move files to correct locations
@@ -227,6 +250,14 @@ EOF
         sudo mv /tmp/aoe2de.docker-compose.yml /opt/aoe2de/docker-compose.yml
         sudo mv /tmp/palworld.docker-compose.yml /opt/palworld/docker-compose.yml
         sudo mv /tmp/arma3.docker-compose.yml /opt/arma3/docker-compose.yml
+        sudo mv /tmp/minetest.docker-compose.yml /opt/minetest/docker-compose.yml
+        sudo mv /tmp/openrct2.docker-compose.yml /opt/openrct2/docker-compose.yml
+        sudo mv /tmp/openttd.docker-compose.yml /opt/openttd/docker-compose.yml
+        sudo mv /tmp/zeroad.docker-compose.yml /opt/zeroad/docker-compose.yml
+        sudo mv /tmp/openra.docker-compose.yml /opt/openra/docker-compose.yml
+        sudo mv /tmp/teeworlds.docker-compose.yml /opt/teeworlds/docker-compose.yml
+        sudo mv /tmp/xonotic.docker-compose.yml /opt/xonotic/docker-compose.yml
+        sudo mv /tmp/ioquake3.docker-compose.yml /opt/ioquake3/docker-compose.yml
 
         # Handle CS2 Template Replacement
         sudo mkdir -p /opt/cs2
@@ -262,6 +293,14 @@ EOF
         ${var.enable_aoe2de ? "cd /opt/aoe2de && (sudo docker rm -f aoe2de-server || true) && retry sudo docker compose up -d && check_and_pause aoe2de-server 60" : "echo 'Skipping Age of Empires II: DE'"}
         ${var.enable_palworld ? "cd /opt/palworld && (sudo docker rm -f palworld-server || true) && retry sudo docker compose up -d && check_and_pause palworld-server 300" : "echo 'Skipping Palworld'"}
         ${var.enable_arma3 ? "cd /opt/arma3 && (sudo docker rm -f arma3-server || true) && retry sudo docker compose up -d && check_and_pause arma3-server 300" : "echo 'Skipping Arma 3'"}
+        ${var.enable_minetest ? "cd /opt/minetest && (sudo docker rm -f minetest-server || true) && retry sudo docker compose up -d && check_and_pause minetest-server 60" : "echo 'Skipping Minetest'"}
+        ${var.enable_openrct2 ? "cd /opt/openrct2 && (sudo docker rm -f openrct2-server || true) && retry sudo docker compose up -d && check_and_pause openrct2-server 60" : "echo 'Skipping OpenRCT2'"}
+        ${var.enable_openttd ? "cd /opt/openttd && (sudo docker rm -f openttd-server || true) && retry sudo docker compose up -d && check_and_pause openttd-server 60" : "echo 'Skipping OpenTTD'"}
+        ${var.enable_zeroad ? "cd /opt/zeroad && (sudo docker rm -f zeroad-server || true) && retry sudo docker compose up -d && check_and_pause zeroad-server 120" : "echo 'Skipping 0 A.D.'"}
+        ${var.enable_openra ? "cd /opt/openra && (sudo docker rm -f openra-server || true) && retry sudo docker compose up -d && check_and_pause openra-server 60" : "echo 'Skipping OpenRA'"}
+        ${var.enable_teeworlds ? "cd /opt/teeworlds && (sudo docker rm -f teeworlds-server ddnet-server || true) && retry sudo docker compose up -d && check_and_pause teeworlds-server 60" : "echo 'Skipping Teeworlds/DDNet'"}
+        ${var.enable_xonotic ? "cd /opt/xonotic && (sudo docker rm -f xonotic-server || true) && retry sudo docker compose up -d && check_and_pause xonotic-server 60" : "echo 'Skipping Xonotic'"}
+        ${var.enable_ioquake3 ? "cd /opt/ioquake3 && (sudo docker rm -f ioquake3-server || true) && retry sudo docker compose up -d && check_and_pause ioquake3-server 60" : "echo 'Skipping ioquake3'"}
 REMOTE_SCRIPT
     EOT
   }

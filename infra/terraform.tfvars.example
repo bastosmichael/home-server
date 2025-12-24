@@ -26,6 +26,14 @@ enable_starbound = false
 enable_aoe2de    = false
 enable_palworld  = false
 enable_arma3     = false
+enable_minetest  = false
+enable_openrct2  = false
+enable_openttd   = false
+enable_zeroad    = false
+enable_openra    = false
+enable_teeworlds = false
+enable_xonotic   = false
+enable_ioquake3  = false
 
 # ARK Server Configuration (only required if enable_ark = true)
 # ark_server_password = "your-server-password"

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  teeworlds-server:
+    image: teeworlds/teeworlds:latest
+    container_name: teeworlds-server
+    restart: unless-stopped
+    ports:
+      - "8303:8303/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - teeworlds_data:/home/teeworlds/.teeworlds
+
+  ddnet-server:
+    image: ddnet/ddnet:latest
+    container_name: ddnet-server
+    restart: unless-stopped
+    ports:
+      - "8304:8303/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ddnet_data:/home/ddnet/.ddnet
+
+volumes:
+  teeworlds_data:
+  ddnet_data:
