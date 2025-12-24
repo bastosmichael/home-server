@@ -16,6 +16,24 @@ variable "enable_ollama" {
   default     = false
 }
 
+variable "enable_openwebui" {
+  description = "Enable OpenWebUI deployment (companion to Ollama)"
+  type        = bool
+  default     = true
+}
+
+variable "enable_adguard" {
+  description = "Enable AdGuard Home DNS server deployment"
+  type        = bool
+  default     = true
+}
+
+variable "enable_traefik" {
+  description = "Enable Traefik reverse proxy deployment"
+  type        = bool
+  default     = true
+}
+
 variable "enable_rust" {
   description = "Enable Rust server stack deployment"
   type        = bool

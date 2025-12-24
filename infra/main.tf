@@ -61,6 +61,9 @@ resource "null_resource" "deploy_stacks" {
       # Copy Compose Files via SCP (renaming on destination to avoid collisions)
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/portainer/docker-compose.yml" "$USER@$HOST:/tmp/portainer.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/ollama/docker-compose.yml" "$USER@$HOST:/tmp/ollama.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/openwebui/docker-compose.yml" "$USER@$HOST:/tmp/openwebui.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/adguard/docker-compose.yml" "$USER@$HOST:/tmp/adguard.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/traefik/docker-compose.yml" "$USER@$HOST:/tmp/traefik.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/rust/docker-compose.yml" "$USER@$HOST:/tmp/rust.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/ark/docker-compose.yml" "$USER@$HOST:/tmp/ark.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/cs2/docker-compose.yml" "$USER@$HOST:/tmp/cs2.docker-compose.yml"
@@ -122,20 +125,37 @@ resource "null_resource" "deploy_stacks" {
         }
 
         # Restart DNS resolver to fix "server misbehaving" errors
-        sudo systemctl restart systemd-resolved || true
+        # Disable systemd-resolved stub listener to allow AdGuard on port 53
+        if grep -q "DNSStubListener=yes" /etc/systemd/resolved.conf || grep -q "#DNSStubListener=yes" /etc/systemd/resolved.conf; then
+             echo "Disabling DNSStubListener for AdGuard..."
+             sudo sed -i 's/#DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
+             sudo sed -i 's/DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
+             # Ensure we have temporary DNS to pull images
+             sudo rm -f /etc/resolv.conf
+             echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf > /dev/null
+             sudo systemctl restart systemd-resolved || true
+        fi
+
+        # Create Proxy Network
+        sudo docker network create proxy || true
         
         # Ensure directories exist (in case bootstrap didn't run or new ones matched)
-        sudo mkdir -p /opt/portainer /opt/ollama /opt/rust-server /opt/ark /opt/cs2 /opt/minecraft /opt/plex \
+        sudo mkdir -p /opt/portainer /opt/ollama /opt/openwebui /opt/adguard/work /opt/adguard/conf /opt/traefik /opt/rust-server /opt/ark /opt/cs2 /opt/minecraft /opt/plex \
           /opt/tf2 /opt/garrysmod /opt/insurgency-sandstorm /opt/squad /opt/squad44 /opt/satisfactory /opt/factorio \
           /opt/eco /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3
         sudo mkdir -p /opt/cs2/data /opt/plex/media
-        sudo chown -R 1000:1000 /opt/cs2/data /opt/ark /opt/plex /opt/portainer /opt/ollama /opt/rust-server /opt/minecraft \
+        sudo chown -R 1000:1000 /opt/cs2/data /opt/ark /opt/plex /opt/portainer /opt/ollama /opt/openwebui /opt/adguard /opt/traefik /opt/rust-server /opt/minecraft \
           /opt/tf2 /opt/garrysmod /opt/insurgency-sandstorm /opt/squad /opt/squad44 /opt/satisfactory /opt/factorio /opt/eco \
           /opt/space-engineers /opt/starbound /opt/aoe2de /opt/palworld /opt/arma3 || true
 
         # Configure Firewall (UFW)
         echo "Configuring Firewall..."
         sudo ufw allow 22/tcp  # SSH
+        sudo ufw allow 80/tcp  # Traefik HTTP
+        sudo ufw allow 53/tcp  # AdGuard DNS
+        sudo ufw allow 53/udp  # AdGuard DNS
+        sudo ufw allow 3001/tcp # AdGuard Setup
+        sudo ufw allow 8081/tcp # AdGuard Admin
         sudo ufw allow 8000/tcp # Portainer
         sudo ufw allow 9000/tcp # Portainer
         sudo ufw allow 11434/tcp # Ollama
@@ -175,6 +195,9 @@ resource "null_resource" "deploy_stacks" {
 
         # Move files to correct locations
         sudo mv /tmp/portainer.docker-compose.yml /opt/portainer/docker-compose.yml
+        sudo mv /tmp/openwebui.docker-compose.yml /opt/openwebui/docker-compose.yml
+        sudo mv /tmp/adguard.docker-compose.yml /opt/adguard/docker-compose.yml
+        sudo mv /tmp/traefik.docker-compose.yml /opt/traefik/docker-compose.yml
         
         # Configure Ollama with GPU support if NVIDIA GPU is present
         if command -v nvidia-smi &> /dev/null; then
@@ -191,6 +214,11 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.ollama.loadbalancer.server.port=11434"
     deploy:
       resources:
         reservations:
@@ -201,6 +229,10 @@ services:
 
 volumes:
   ollama_data:
+
+networks:
+  proxy:
+    external: true
 EOF
           # Clean up the temp CPU File
           sudo rm -f /tmp/ollama.docker-compose.yml
@@ -233,8 +265,11 @@ EOF
         sudo rm -f /tmp/cs2.docker-compose.yml
 
         # Deploy Stacks
+        ${var.enable_adguard ? "cd /opt/adguard && (sudo docker rm -f adguard || true) && retry sudo docker compose up -d" : "echo 'Skipping AdGuard'"}
+        ${var.enable_traefik ? "cd /opt/traefik && (sudo docker rm -f traefik || true) && retry sudo docker compose up -d" : "echo 'Skipping Traefik'"}
         ${var.enable_portainer ? "cd /opt/portainer && (sudo docker rm -f portainer || true) && retry sudo docker compose up -d" : "echo 'Skipping Portainer'"}
         ${var.enable_ollama ? "cd /opt/ollama && (sudo docker rm -f ollama || true) && retry sudo docker compose up -d && sleep 10 && retry sudo docker exec ollama ollama pull tinyllama && retry sudo docker exec ollama ollama pull starcoder:1b" : "echo 'Skipping Ollama'"}
+        ${var.enable_openwebui ? "cd /opt/openwebui && (sudo docker rm -f openwebui || true) && retry sudo docker compose up -d" : "echo 'Skipping OpenWebUI'"}
         ${var.enable_rust ? "cd /opt/rust-server && (sudo docker rm -f rust-server || true) && retry sudo docker compose up -d && check_and_pause rust-server" : "echo 'Skipping Rust'"}
         ${var.enable_ark ? "cd /opt/ark && (sudo docker rm -f ark-server ark_server || true) && retry sudo docker compose up -d && check_and_pause ark-server" : "echo 'Skipping ARK'"}
         ${var.enable_cs2 ? "cd /opt/cs2 && (sudo docker rm -f cs2-server cs2_server || true) && retry sudo docker compose up -d && check_and_pause cs2-server" : "echo 'Skipping CS2'"}
