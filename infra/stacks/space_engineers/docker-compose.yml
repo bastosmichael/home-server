@@ -6,7 +6,7 @@ services:
     container_name: space-engineers-server
     restart: unless-stopped
     ports:
-      - "27016:27016/udp"
+      - "27019:27016/udp"
       - "8766:8766/udp"
     environment:
       - INSTANCE_NAME=Space Engineers

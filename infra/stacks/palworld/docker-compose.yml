@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     ports:
       - "8211:8211/udp"
-      - "27015:27015/udp"
+      - "27023:27015/udp"
     environment:
       - PUID=1000
       - PGID=1000

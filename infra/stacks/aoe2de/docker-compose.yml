@@ -6,11 +6,11 @@ services:
     container_name: aoe2de-server
     restart: unless-stopped
     ports:
-      - "27015:27015/udp"
-      - "27016:27016/udp"
+      - "27020:27015/udp"
+      - "27021:27016/udp"
     environment:
-      - GAME_PORT=27015
-      - QUERY_PORT=27016
+      - GAME_PORT=27020
+      - QUERY_PORT=27021
     volumes:
       - aoe2de_data:/serverdata
 

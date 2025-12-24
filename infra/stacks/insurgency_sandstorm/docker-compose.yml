@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   insurgency-sandstorm-server:
-    image: cm2network/insurgency:sandstorm
+    image: wolveix/insurgency-sandstorm-server:latest
     container_name: insurgency-sandstorm-server
     restart: unless-stopped
     ports:
