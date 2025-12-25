@@ -10,9 +10,9 @@ services:
     environment:
       - EULA=TRUE
       - VERSION=1.21.11
-      - DIFFICULTY=normal
+      - DIFFICULTY=easy
       - SPAWN_MONSTERS=false
-      - VIEW_DISTANCE=12
+      - VIEW_DISTANCE=10
       - TYPE=PAPER
     volumes:
       - minecraft_data:/data
