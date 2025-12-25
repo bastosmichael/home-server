@@ -75,10 +75,10 @@ infra/            # Terraform configuration
 
    | Game | Ports to Expose (host side) | How to Join from the Game Client |
    | --- | --- | --- |
-   | [Rust](https://rust.facepunch.com/) | Game: `<server-ip>:28015`, RCON: `<server-ip>:28016` | Press ``F1`` to open the console, run `connect <server-ip>:28015`, and use RCON tools pointed at port 28016 if needed. |
+   | [Rust](https://rust.facepunch.com/) | Game: `<server-ip>:28015`, Query/RCON: `<server-ip>:28016` (UDP/TCP) | Press ``F1`` to open the console, run `connect <server-ip>:28015`. |
    | [ARK: Survival Evolved](https://store.steampowered.com/app/346110/ARK_Survival_Evolved/) | Game UDP: `<server-ip>:7777`, Alt UDP: `<server-ip>:7778`, Query UDP: `<server-ip>:27016` | In **Join ARK**, add the server to favorites with `steam://connect/<server-ip>:7777` or via the in-game favorites list using the game port (7777). |
    | [Counter-Strike 2](https://store.steampowered.com/app/730/CounterStrike_2/) | TCP/UDP: `<server-ip>:27015` | In the developer console, run `connect <server-ip>:27015`, or add the IP/port under Community Servers > Favorites. |
-   | [Minecraft](https://www.minecraft.net/) | TCP: `<server-ip>:25565` | From Multiplayer, choose **Direct Connection** or **Add Server** and enter `<server-ip>` (port 25565). |
+   | [Minecraft](https://www.minecraft.net/) | TCP: `<server-ip>:25565` | **Paper 1.21.1**. Direct Connect to `<server-ip>` (port 25565). No Monsters, 12 Chunk Distance. |
    | [Team Fortress 2](https://store.steampowered.com/app/440/Team_Fortress_2/) | TCP/UDP: `<server-ip>:27017` | Open **Browse Servers** → **Favorites** → **Add a Server**, enter `<server-ip>:27017`, then connect. |
    | [Garry’s Mod](https://store.steampowered.com/app/4000/Garrys_Mod/) | TCP/UDP: `<server-ip>:27018`, Extra UDP: `<server-ip>:27008` | In the main menu, open **Find Multiplayer Game** → **Legacy Browser** → **Favorites**, add `<server-ip>:27018`, then connect. |
    | [Insurgency: Sandstorm](https://store.steampowered.com/app/581320/Insurgency_Sandstorm/) | Game UDP: `<server-ip>:27102`, Query UDP: `<server-ip>:27131` | From the Play menu, use the server browser Filters → Favorites, add `<server-ip>:27102`, then refresh and join. |

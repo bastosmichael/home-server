@@ -8,12 +8,12 @@ services:
       - immich-postgres
       - immich-redis
     environment:
-      - DB_HOST=immich-postgres
+      - DB_HOSTNAME=immich-postgres
       - DB_PORT=5432
       - DB_USERNAME=immich
       - DB_PASSWORD=immich
       - DB_DATABASE_NAME=immich
-      - REDIS_HOST=immich-redis
+      - REDIS_HOSTNAME=immich-redis
       - IMMICH_MEDIA_LOCATION=/usr/src/app/upload
     volumes:
       - /opt/immich/library:/usr/src/app/upload
@@ -36,12 +36,13 @@ services:
     restart: unless-stopped
 
   immich-postgres:
-    image: postgres:14
+    image: tensorchord/pgvecto-rs:pg14-v0.2.0
     container_name: immich-postgres
     environment:
       - POSTGRES_USER=immich
       - POSTGRES_PASSWORD=immich
       - POSTGRES_DB=immich
+      - POSTGRES_INITDB_ARGS=--data-checksums
     volumes:
       - immich_pgdata:/var/lib/postgresql/data
     restart: unless-stopped
