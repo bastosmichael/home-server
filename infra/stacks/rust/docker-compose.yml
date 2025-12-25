@@ -13,9 +13,9 @@ services:
       - RUST_SERVER_STARTUP_ARGUMENTS=-batchmode -nographics -load +server.secure 1
       - RUST_SERVER_IDENTITY=docker
       - RUST_SERVER_SEED=12345
-      - RUST_SERVER_WORLDSIZE=1500
+      - RUST_SERVER_WORLDSIZE=3000
       - RUST_SERVER_NAME=Rust Server
-      - RUST_SERVER_MAXPLAYERS=5
+      - RUST_SERVER_MAXPLAYERS=10
     volumes:
       - rust_data:/steamcmd/rust
 
