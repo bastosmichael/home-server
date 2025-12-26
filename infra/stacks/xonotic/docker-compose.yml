@@ -2,17 +2,17 @@ version: '3.8'
 
 services:
   xonotic-server:
-    image: lscr.io/linuxserver/xonotic:latest
+    image: ich777/xonotic:latest
     container_name: xonotic-server
     restart: unless-stopped
     ports:
       - "26000:26000/udp"
-      - "26000:26000/tcp"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - UID=1000
+      - GID=1000
+      - GAME_PARAMS=+serverconfig server.cfg
     volumes:
-      - xonotic_data:/config
+      - xonotic_data:/serverdata/serverfiles
 
 volumes:
   xonotic_data:
