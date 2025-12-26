@@ -1,12 +1,4 @@
-
-   | [Minetest](https://www.minetest.net/) | UDP: `<server-ip>:30000` | In Multiplayer, click **Add Server** and enter `<server-ip>` with port `30000`, then join. |
-   | [OpenRCT2](https://openrct2.io/) | TCP/UDP: `<server-ip>:11753` | From the main menu, open **Multiplayer** → **Direct connect** and enter `<server-ip>:11753`; ensure you have the original game assets. |
-   | [OpenTTD](https://www.openttd.org/) | TCP/UDP: `<server-ip>:3979` | In Multiplayer, add `<server-ip>:3979` as a server or connect via LAN/Internet lists after forwarding both ports. |
-   | [0 A.D.](https://play0ad.com/) | UDP: `<server-ip>:20595` | In **Multiplayer**, choose **Host/Join**, then direct connect to `<server-ip>:20595` (share any password you set). |
-   | [OpenRA](https://www.openra.net/) | TCP/UDP: `<server-ip>:1234` | From the main menu, choose **Multiplayer** → **Direct Connect** and enter `<server-ip>:1234`. |
-   | [Teeworlds / DDNet](https://www.teeworlds.com/) | UDP: `<server-ip>:8303` (Teeworlds), `<server-ip>:8304` (DDNet) | Add `<server-ip>:8303` to favorites in the in-game browser for vanilla, or `<server-ip>:8304` for DDNet; refresh and join. |
-   | [Xonotic](https://xonotic.org/) | UDP/TCP: `<server-ip>:26000` | Open **Multiplayer** → **Servers**, add a favorite or console connect to `<server-ip>:26000`. |
-   | [ioquake3 / Quake 3](https://ioquake3.org/) | UDP: `<server-ip>:27960` | Open the console and run `connect <server-ip>:27960`, or add a favorite server with that address. |# Home Gaming Server Infrastructure
+# Home Server
 
 This project manages a home server running various Docker stacks using Terraform, with a focus on self-hosted game servers plus a few media/tooling containers.
 
