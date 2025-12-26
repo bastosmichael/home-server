@@ -76,7 +76,10 @@ services:
       - "7861:7860"
     volumes:
       - sd-webui:/app/stable-diffusion-webui
-    command: "--listen --skip-torch-cuda-test --no-half --use-cpu all"
+    environment:
+      - COMMANDLINE_ARGS=--listen --skip-torch-cuda-test --no-half --use-cpu all
+      - CLI_ARGS=--listen --skip-torch-cuda-test --no-half --use-cpu all
+    command: [ "bash", "webui.sh", "--listen", "--skip-torch-cuda-test", "--no-half", "--use-cpu", "all" ]
 
   whisper-server:
     image: rhasspy/wyoming-whisper:latest
