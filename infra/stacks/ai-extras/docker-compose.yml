@@ -1,0 +1,160 @@
+version: '3.8'
+
+services:
+  text-generation-webui:
+    image: ghcr.io/oobabooga/text-generation-webui:latest
+    container_name: text-generation-webui
+    restart: unless-stopped
+    ports:
+      - "7860:7860"
+    environment:
+      - CLI_ARGS=--listen
+    volumes:
+      - textgen-ui:/data
+
+  librechat:
+    image: ghcr.io/danny-avila/librechat:latest
+    container_name: librechat
+    restart: unless-stopped
+    depends_on:
+      - librechat-mongo
+      - librechat-redis
+      - librechat-meilisearch
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3080
+      - MONGODB_URL=mongodb://librechat-mongo:27017/librechat
+      - REDIS_HOST=librechat-redis
+      - REDIS_PORT=6379
+      - MEILI_HOST=librechat-meilisearch
+      - MEILI_PORT=7700
+    ports:
+      - "3080:3080"
+    volumes:
+      - librechat-uploads:/app/backend/uploads
+
+  librechat-mongo:
+    image: mongo:7
+    container_name: librechat-mongo
+    restart: unless-stopped
+    volumes:
+      - librechat-mongo:/data/db
+
+  librechat-redis:
+    image: redis:7
+    container_name: librechat-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - librechat-redis:/data
+
+  librechat-meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: librechat-meilisearch
+    restart: unless-stopped
+    environment:
+      - MEILI_ENV=production
+    volumes:
+      - librechat-meili:/meili_data
+
+  comfyui:
+    image: ghcr.io/comfyanonymous/comfyui:latest
+    container_name: comfyui
+    restart: unless-stopped
+    ports:
+      - "8188:8188"
+    volumes:
+      - comfyui-data:/home/comfyui
+
+  stable-diffusion-webui:
+    image: lscr.io/linuxserver/stable-diffusion:latest
+    container_name: stable-diffusion-webui
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - CLI_ARGS=--listen
+    ports:
+      - "7861:7860"
+    volumes:
+      - sd-webui:/config
+
+  whisper-server:
+    image: ghcr.io/ggerganov/whisper.cpp:server
+    container_name: whisper-server
+    restart: unless-stopped
+    command: ["--host", "0.0.0.0", "--port", "9000", "--model", "ggml-base.en.bin"]
+    ports:
+      - "9000:9000"
+    volumes:
+      - whisper-models:/models
+
+  piper-tts:
+    image: rhasspy/wyoming-piper:latest
+    container_name: piper-tts
+    restart: unless-stopped
+    command: ["--voice", "en-us-lessac-medium", "--uri", "0.0.0.0:10200"]
+    ports:
+      - "10200:10200"
+    volumes:
+      - piper-voices:/data
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+
+  milvus:
+    image: milvusdb/milvus:latest
+    container_name: milvus
+    restart: unless-stopped
+    command: ["milvus", "run", "standalone"]
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    volumes:
+      - milvus-data:/var/lib/milvus
+
+  langgraph-studio:
+    image: ghcr.io/langchain-ai/langgraph-studio:latest
+    container_name: langgraph-studio
+    restart: unless-stopped
+    environment:
+      - PORT=8123
+      - LANGGRAPH_ENABLE_OLLAMA=true
+      - LANGGRAPH_OLLAMA_URL=http://ollama:11434
+    ports:
+      - "8123:8123"
+    volumes:
+      - langgraph-projects:/workspace
+
+  crewai-orchestrator:
+    image: ghcr.io/joaomdmoura/crewai-server:latest
+    container_name: crewai-orchestrator
+    restart: unless-stopped
+    environment:
+      - PORT=8001
+    ports:
+      - "8001:8001"
+    volumes:
+      - crewai-data:/app/data
+
+volumes:
+  textgen-ui:
+  librechat-uploads:
+  librechat-mongo:
+  librechat-redis:
+  librechat-meili:
+  comfyui-data:
+  sd-webui:
+  whisper-models:
+  piper-voices:
+  qdrant-data:
+  milvus-data:
+  langgraph-projects:
+  crewai-data:

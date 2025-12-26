@@ -51,3 +51,9 @@ variable "enable_nextcloud" {
   type        = bool
   default     = false
 }
+
+variable "enable_ai_extras" {
+  description = "Enable optional AI extras stack deployment"
+  type        = bool
+  default     = false
+}

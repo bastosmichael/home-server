@@ -40,9 +40,9 @@ resource "null_resource" "bootstrap_docker" {
       # "sudo usermod -aG docker $USER || true",
 
       # Create stack dirs
-      "sudo mkdir -p /opt/portainer /opt/ollama /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud",
+      "sudo mkdir -p /opt/portainer /opt/ollama /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras",
       "sudo mkdir -p /opt/plex/media /opt/jellyfin/cache /opt/jellyfin/media /opt/immich/library /opt/navidrome/music /opt/audiobookshelf/audiobooks /opt/audiobookshelf/podcasts /opt/nextcloud/html",
-      "sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/ollama /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud || true",
+      "sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/ollama /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras || true",
     ]
   }
 }
@@ -66,6 +66,7 @@ resource "null_resource" "deploy_stacks" {
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/navidrome/docker-compose.yml" "$USER@$HOST:/tmp/navidrome.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/audiobookshelf/docker-compose.yml" "$USER@$HOST:/tmp/audiobookshelf.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/nextcloud/docker-compose.yml" "$USER@$HOST:/tmp/nextcloud.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/ai-extras/docker-compose.yml" "$USER@$HOST:/tmp/ai-extras.docker-compose.yml"
 
       # Execute Remote Setup via SSH
       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$USER@$HOST" 'bash -s' <<'REMOTE_SCRIPT'
@@ -94,9 +95,9 @@ resource "null_resource" "deploy_stacks" {
         sudo systemctl restart systemd-resolved || true
 
         # Ensure directories exist (in case bootstrap didn't run or new ones matched)
-        sudo mkdir -p /opt/portainer /opt/ollama /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud
+        sudo mkdir -p /opt/portainer /opt/ollama /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras
         sudo mkdir -p /opt/plex/media /opt/jellyfin/cache /opt/jellyfin/media /opt/immich/library /opt/navidrome/music /opt/audiobookshelf/audiobooks /opt/audiobookshelf/podcasts /opt/nextcloud/html
-        sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/ollama /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud || true
+        sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/ollama /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras || true
 
         # Configure Firewall (UFW)
         echo "Configuring Firewall..."
@@ -114,6 +115,21 @@ resource "null_resource" "deploy_stacks" {
         sudo ufw allow 4533/tcp  # Navidrome
         sudo ufw allow 13378/tcp # Audiobookshelf
         sudo ufw allow 8080/tcp  # Nextcloud
+        sudo ufw allow 7860/tcp  # text-generation-webui
+        sudo ufw allow 3080/tcp  # LibreChat
+        sudo ufw allow 7700/tcp  # Meilisearch
+        sudo ufw allow 6379/tcp  # Redis
+        sudo ufw allow 27017/tcp # MongoDB
+        sudo ufw allow 8188/tcp  # ComfyUI
+        sudo ufw allow 7861/tcp  # Stable Diffusion WebUI
+        sudo ufw allow 9000/tcp  # Whisper server
+        sudo ufw allow 10200/tcp # Piper TTS
+        sudo ufw allow 6333/tcp  # Qdrant HTTP
+        sudo ufw allow 6334/tcp  # Qdrant gRPC
+        sudo ufw allow 19530/tcp # Milvus gRPC
+        sudo ufw allow 9091/tcp  # Milvus HTTP
+        sudo ufw allow 8123/tcp  # LangGraph Studio
+        sudo ufw allow 8001/tcp  # CrewAI orchestrator
         sudo ufw --force enable || true
 
         # Move files to correct locations
@@ -158,6 +174,7 @@ EOF
         sudo mv /tmp/navidrome.docker-compose.yml /opt/navidrome/docker-compose.yml
         sudo mv /tmp/audiobookshelf.docker-compose.yml /opt/audiobookshelf/docker-compose.yml
         sudo mv /tmp/nextcloud.docker-compose.yml /opt/nextcloud/docker-compose.yml
+        sudo mv /tmp/ai-extras.docker-compose.yml /opt/ai-extras/docker-compose.yml
 
         # Configure Plex Media Storage
         if [ -d "/mnt/coldstore" ]; then
@@ -212,6 +229,7 @@ EOF
         ${var.enable_navidrome ? "cd /opt/navidrome && (sudo docker rm -f navidrome || true) && retry sudo docker compose up -d" : "echo 'Skipping Navidrome'"}
         ${var.enable_audiobookshelf ? "cd /opt/audiobookshelf && (sudo docker rm -f audiobookshelf || true) && retry sudo docker compose up -d" : "echo 'Skipping Audiobookshelf'"}
         ${var.enable_nextcloud ? "cd /opt/nextcloud && (sudo docker rm -f nextcloud nextcloud-db nextcloud-redis || true) && retry sudo docker compose up -d" : "echo 'Skipping Nextcloud'"}
+        ${var.enable_ai_extras ? "cd /opt/ai-extras && retry sudo docker compose up -d" : "echo 'Skipping AI extras'"}
 REMOTE_SCRIPT
     EOT
   }

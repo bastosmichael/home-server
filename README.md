@@ -29,9 +29,10 @@ infra/            # Terraform configuration
      -var="enable_plex=true" \
      -var="enable_jellyfin=true" \
      -var="enable_immich=true" \
-     -var="enable_navidrome=true" \
-     -var="enable_audiobookshelf=true" \
-     -var="enable_nextcloud=true"
+    -var="enable_navidrome=true" \
+    -var="enable_audiobookshelf=true" \
+    -var="enable_nextcloud=true" \
+    -var="enable_ai_extras=true"
    ```
 
    **Note:** replace `192.168.86.38` with your actual server IP.
@@ -45,6 +46,17 @@ infra/            # Terraform configuration
    * **Navidrome:** `http://<server-ip>:4533`
    * **Audiobookshelf:** `http://<server-ip>:13378`
    * **Nextcloud:** `http://<server-ip>:8080`
+   * **AI Extras stack (all-in-one optional sandbox):**
+     * Text Generation WebUI: `http://<server-ip>:7860`
+     * LibreChat (plus Mongo/Redis/Meilisearch backing services): `http://<server-ip>:3080`
+     * ComfyUI: `http://<server-ip>:8188`
+     * Stable Diffusion WebUI (LinuxServer): `http://<server-ip>:7861`
+     * Whisper.cpp server: `http://<server-ip>:9000`
+     * Piper TTS (Wyoming): `http://<server-ip>:10200`
+     * Qdrant: `http://<server-ip>:6333`
+     * Milvus standalone: `http://<server-ip>:9091`
+     * LangGraph Studio: `http://<server-ip>:8123`
+     * CrewAI orchestrator: `http://<server-ip>:8001`
 
    Terraform's remote bootstrap automatically opens UFW for HTTP/HTTPS (80/443), Open WebUI (3000), and every published media port above so the services bind to `0.0.0.0` and remain reachable externally.
 

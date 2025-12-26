@@ -14,3 +14,4 @@ enable_immich    = false
 enable_navidrome = false
 enable_audiobookshelf = false
 enable_nextcloud = false
+enable_ai_extras = false
