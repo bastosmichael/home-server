@@ -15,3 +15,7 @@ enable_navidrome = false
 enable_audiobookshelf = false
 enable_nextcloud = false
 enable_ai_extras = false
+enable_cloudflared = false
+
+# Cloudflared tunnel token (required if enable_cloudflared = true)
+# cloudflared_tunnel_token = ""

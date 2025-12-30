@@ -29,10 +29,19 @@ infra/            # Terraform configuration
      -var="enable_plex=true" \
      -var="enable_jellyfin=true" \
      -var="enable_immich=true" \
-    -var="enable_navidrome=true" \
-    -var="enable_audiobookshelf=true" \
-    -var="enable_nextcloud=true" \
-    -var="enable_ai_extras=true"
+     -var="enable_navidrome=true" \
+     -var="enable_audiobookshelf=true" \
+     -var="enable_nextcloud=true" \
+     -var="enable_ai_extras=true"
+   ```
+
+   To expose your stacks through Cloudflare Tunnel, set `enable_cloudflared=true` and provide your tunnel token:
+
+   ```bash
+   terraform apply \
+     -var="docker_host=ssh://michael@192.168.86.38" \
+     -var="enable_cloudflared=true" \
+     -var="cloudflared_tunnel_token=<your_token_here>"
    ```
 
    **Note:** replace `192.168.86.38` with your actual server IP.

@@ -40,9 +40,9 @@ resource "null_resource" "bootstrap_docker" {
       # "sudo usermod -aG docker $USER || true",
 
       # Create stack dirs
-      "sudo mkdir -p /opt/portainer /opt/ollama /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras",
+      "sudo mkdir -p /opt/portainer /opt/ollama /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras /opt/cloudflared",
       "sudo mkdir -p /opt/plex/media /opt/jellyfin/cache /opt/jellyfin/media /opt/immich/library /opt/navidrome/music /opt/audiobookshelf/audiobooks /opt/audiobookshelf/podcasts /opt/nextcloud/html",
-      "sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/ollama /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras || true",
+      "sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/ollama /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras /opt/cloudflared || true",
     ]
   }
 }
@@ -67,6 +67,7 @@ resource "null_resource" "deploy_stacks" {
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/audiobookshelf/docker-compose.yml" "$USER@$HOST:/tmp/audiobookshelf.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/nextcloud/docker-compose.yml" "$USER@$HOST:/tmp/nextcloud.docker-compose.yml"
       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/ai-extras/docker-compose.yml" "$USER@$HOST:/tmp/ai-extras.docker-compose.yml"
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${path.module}/stacks/cloudflared/docker-compose.yml" "$USER@$HOST:/tmp/cloudflared.docker-compose.yml"
 
       # Execute Remote Setup via SSH
       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$USER@$HOST" 'bash -s' <<'REMOTE_SCRIPT'
@@ -95,9 +96,9 @@ resource "null_resource" "deploy_stacks" {
         sudo systemctl restart systemd-resolved || true
 
         # Ensure directories exist (in case bootstrap didn't run or new ones matched)
-        sudo mkdir -p /opt/portainer /opt/ollama /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras
+        sudo mkdir -p /opt/portainer /opt/ollama /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras /opt/cloudflared
         sudo mkdir -p /opt/plex/media /opt/jellyfin/cache /opt/jellyfin/media /opt/immich/library /opt/navidrome/music /opt/audiobookshelf/audiobooks /opt/audiobookshelf/podcasts /opt/nextcloud/html
-        sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/ollama /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras || true
+        sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/ollama /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/ai-extras /opt/cloudflared || true
 
         # Configure Firewall (UFW)
         echo "Configuring Firewall..."
@@ -175,6 +176,7 @@ EOF
         sudo mv /tmp/audiobookshelf.docker-compose.yml /opt/audiobookshelf/docker-compose.yml
         sudo mv /tmp/nextcloud.docker-compose.yml /opt/nextcloud/docker-compose.yml
         sudo mv /tmp/ai-extras.docker-compose.yml /opt/ai-extras/docker-compose.yml
+        sudo mv /tmp/cloudflared.docker-compose.yml /opt/cloudflared/docker-compose.yml
 
         # Configure Plex Media Storage
         if [ -d "/mnt/coldstore" ]; then
@@ -220,6 +222,17 @@ EOF
             echo "No coldstore detected. Keeping default /opt/nextcloud/html."
         fi
 
+        if [ "${var.enable_cloudflared}" = "true" ]; then
+            if [ -z "${var.cloudflared_tunnel_token}" ]; then
+              echo "cloudflared_tunnel_token is required when enable_cloudflared=true" >&2
+              exit 1
+            fi
+
+            sudo bash -c 'cat > /opt/cloudflared/.env <<"EOF"
+TUNNEL_TOKEN=${var.cloudflared_tunnel_token}
+EOF'
+        fi
+
         # Deploy Stacks
         ${var.enable_portainer ? "cd /opt/portainer && (sudo docker rm -f portainer || true) && retry sudo docker compose up -d" : "echo 'Skipping Portainer'"}
         ${var.enable_ollama ? "cd /opt/ollama && (sudo docker rm -f ollama || true) && retry sudo docker compose up -d && sleep 10 && retry sudo docker exec ollama ollama pull tinyllama && retry sudo docker exec ollama ollama pull starcoder:1b && retry sudo docker exec ollama ollama pull gpt-oss" : "echo 'Skipping Ollama'"}
@@ -229,6 +242,7 @@ EOF
         ${var.enable_navidrome ? "cd /opt/navidrome && (sudo docker rm -f navidrome || true) && retry sudo docker compose up -d" : "echo 'Skipping Navidrome'"}
         ${var.enable_audiobookshelf ? "cd /opt/audiobookshelf && (sudo docker rm -f audiobookshelf || true) && retry sudo docker compose up -d" : "echo 'Skipping Audiobookshelf'"}
         ${var.enable_nextcloud ? "cd /opt/nextcloud && (sudo docker rm -f nextcloud nextcloud-db nextcloud-redis || true) && retry sudo docker compose up -d" : "echo 'Skipping Nextcloud'"}
+        ${var.enable_cloudflared ? "cd /opt/cloudflared && (sudo docker rm -f cloudflared || true) && retry sudo docker compose up -d" : "echo 'Skipping cloudflared'"}
         ${var.enable_ai_extras ? "cd /opt/ai-extras && retry sudo docker compose up -d" : "echo 'Skipping AI extras'"}
 REMOTE_SCRIPT
     EOT

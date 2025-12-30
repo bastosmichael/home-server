@@ -57,3 +57,15 @@ variable "enable_ai_extras" {
   type        = bool
   default     = false
 }
+
+variable "enable_cloudflared" {
+  description = "Enable Cloudflare Tunnel (cloudflared) deployment"
+  type        = bool
+  default     = false
+}
+
+variable "cloudflared_tunnel_token" {
+  description = "Cloudflare Tunnel token used by cloudflared when enabled"
+  type        = string
+  default     = ""
+}
