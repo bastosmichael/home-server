@@ -7,23 +7,9 @@
 
 # Enable/disable stacks
 enable_portainer = true
-enable_ollama    = false
 enable_plex      = false
 enable_jellyfin  = false
 enable_immich    = false
 enable_navidrome = false
 enable_audiobookshelf = false
 enable_nextcloud = false
-enable_ai_extras = false # Master switch to turn on all AI extras profiles
-enable_n8n = false
-enable_text_generation_webui = false
-enable_librechat = false
-enable_comfyui = false
-enable_stable_diffusion_webui = false
-enable_whisper_server = false
-enable_whisperx = false
-enable_piper_tts = false
-enable_qdrant = false
-enable_milvus = false
-enable_langgraph_studio = false
-enable_crewai = false

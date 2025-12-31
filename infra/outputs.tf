@@ -7,11 +7,6 @@ output "portainer_url" {
   value       = var.enable_portainer ? "http://${local.docker_host_address}:9000" : "Portainer not enabled"
 }
 
-output "ollama_url" {
-  description = "URL to access Ollama API"
-  value       = var.enable_ollama ? "http://${local.docker_host_address}:11434" : "Ollama not enabled"
-}
-
 output "plex_url" {
   description = "URL to access Plex"
   value       = var.enable_plex ? "http://${local.docker_host_address}:32400/web" : "Plex not enabled"
@@ -46,7 +41,6 @@ output "deployed_stacks" {
   description = "List of deployed stacks"
   value = concat(
     var.enable_portainer ? ["portainer"] : [],
-    var.enable_ollama ? ["ollama"] : [],
     var.enable_plex ? ["plex"] : [],
     var.enable_jellyfin ? ["jellyfin"] : [],
     var.enable_immich ? ["immich"] : [],

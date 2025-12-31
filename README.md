@@ -11,7 +11,7 @@ infra/            # Terraform configuration
   outputs.tf      # Deployment outputs
   stacks/         # Docker Compose files grouped by purpose
     # Media & tooling
-    audiobookshelf/ immich/ jellyfin/ navidrome/ nextcloud/ ollama/ plex/ portainer/
+    audiobookshelf/ immich/ jellyfin/ navidrome/ nextcloud/ plex/ portainer/
 ```
 
 ## Deployment
@@ -30,24 +30,8 @@ infra/            # Terraform configuration
      -var="enable_immich=true" \
      -var="enable_navidrome=true" \
      -var="enable_audiobookshelf=true" \
-     -var="enable_nextcloud=true" \
-     -var="enable_ai_extras=true" \
-     -var="enable_text_generation_webui=true" \
-     -var="enable_librechat=true" \
-     -var="enable_comfyui=true" \
-     -var="enable_stable_diffusion_webui=true" \
-     -var="enable_whisper_server=true" \
-     -var="enable_piper_tts=true" \
-     -var="enable_qdrant=true" \
-     -var="enable_milvus=true" \
-     -var="enable_langgraph_studio=true" \
-     -var="enable_crewai=true" \
-     -var="enable_n8n=true" \
-     -var="enable_whisperx=true"
+     -var="enable_nextcloud=true"
    ```
-
-   To deploy AI/LLM tooling, either turn everything on with `-var="enable_ai_extras=true"` or pick specific services such as
-   `-var="enable_text_generation_webui=true"`, `-var="enable_librechat=true"`, `-var="enable_n8n=true"`, or `-var="enable_whisperx=true"`.
 
    **Note:** replace `192.168.86.38` with your actual server IP.
 
@@ -60,23 +44,7 @@ infra/            # Terraform configuration
      * **Navidrome:** `http://<server-ip>:4533`
      * **Audiobookshelf:** `http://<server-ip>:13378`
      * **Nextcloud:** `http://<server-ip>:8080`
-
-   * **AI, LLM & Automation:**
-     * **Ollama/Open WebUI:** `http://<server-ip>:3000` (if enabled)
-     * **n8n automation:** `http://<server-ip>:5678`
-     * **Text Generation WebUI:** `http://<server-ip>:7860`
-     * **LibreChat (plus Mongo/Redis/Meilisearch backing services):** `http://<server-ip>:3080`
-     * **ComfyUI:** `http://<server-ip>:8188`
-     * **Stable Diffusion WebUI (LinuxServer):** `http://<server-ip>:7861`
-     * **Whisper.cpp server:** `http://<server-ip>:9000`
-     * **WhisperX API:** `http://<server-ip>:9001`
-     * **Piper TTS (Wyoming):** `http://<server-ip>:10200`
-     * **Qdrant:** `http://<server-ip>:6333`
-     * **Milvus standalone:** `http://<server-ip>:9091`
-     * **LangGraph Studio:** `http://<server-ip>:8123`
-     * **CrewAI orchestrator:** `http://<server-ip>:8001`
-
-   Terraform's remote bootstrap automatically opens UFW for HTTP/HTTPS (80/443), Open WebUI (3000), and the ports associated with any services you enable so they bind to `0.0.0.0` and remain reachable externally.
+   Terraform's remote bootstrap automatically opens UFW for HTTP/HTTPS (80/443) and the ports associated with any services you enable so they bind to `0.0.0.0` and remain reachable externally.
 
    Media stacks auto-mount `/mnt/coldstore` for their libraries if that directory exists; otherwise they fall back to the default `/opt/<service>` paths included in the Compose files.
 
@@ -90,21 +58,6 @@ infra/            # Terraform configuration
 * **Navidrome:** Music streaming server compatible with Subsonic clients.
 * **Audiobookshelf:** Audiobook and podcast library with bookmarking and progress sync.
 * **Nextcloud:** File sync/share suite with calendar, contacts, and productivity add-ons.
-
-### AI, LLM & Automation
-* **Ollama:** Local LLM runtime; **Open WebUI** adds a chat-style interface that targets Ollama's API.
-* **n8n:** Workflow automation platform for connecting webhooks, APIs, and services.
-* **Text Generation WebUI:** Model-agnostic chat and inference UI for local or remote LLMs.
-* **LibreChat:** Full-featured chat application with history, tools, and multi-provider support (paired with bundled MongoDB, Redis, and Meilisearch containers).
-* **ComfyUI:** Node-based interface for building Stable Diffusion image pipelines.
-* **Stable Diffusion WebUI:** Browser UI for image generation and model management.
-* **Whisper.cpp server:** Wyoming-compatible speech-to-text endpoint using lightweight Whisper models.
-* **WhisperX API:** Alignment-focused speech-to-text API with diarization-ready outputs.
-* **Piper TTS:** Wyoming-compatible text-to-speech server with downloadable voices.
-* **Qdrant:** Vector database for semantic search and embeddings.
-* **Milvus:** Scalable vector database with gRPC/HTTP APIs.
-* **LangGraph Studio:** Visual editor for LangGraph agents that can call Ollama by default.
-* **CrewAI orchestrator:** Backend for coordinating multi-agent LLM workflows.
 
 ## System Prerequisites
 Before running Terraform, you must ensure:
