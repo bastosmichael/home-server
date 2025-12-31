@@ -31,24 +31,24 @@ infra/            # Terraform configuration
      -var="enable_plex=true" \
      -var="enable_jellyfin=true" \
      -var="enable_immich=true" \
-    -var="enable_navidrome=true" \
-   -var="enable_audiobookshelf=true" \
-   -var="enable_overseerr=true" \
-   -var="enable_radarr=true" \
-   -var="enable_sonarr=true" \
-   -var="enable_lidarr=true" \
-   -var="enable_bazarr=true" \
-   -var="enable_prowlarr=true" \
-   -var="enable_qbittorrent=true" \
-   -var="enable_nzbget=true" \
-   -var="enable_nginxproxymanager=true" \
-   -var="enable_homeassistant=true" \
-   -var="enable_zigbee2mqtt=true" \
-    -var="enable_frigate=true" \
-    -var="enable_grafana=true" \
-    -var="enable_influxdb=true" \
-    -var="enable_prometheus=true" \
-    -var="enable_nextcloud=true"
+     -var="enable_navidrome=true" \
+     -var="enable_audiobookshelf=true" \
+     -var="enable_overseerr=true" \
+     -var="enable_radarr=true" \
+     -var="enable_sonarr=true" \
+     -var="enable_lidarr=true" \
+     -var="enable_bazarr=true" \
+     -var="enable_prowlarr=true" \
+     -var="enable_qbittorrent=true" \
+     -var="enable_nzbget=true" \
+     -var="enable_nginxproxymanager=true" \
+     -var="enable_homeassistant=true" \
+     -var="enable_zigbee2mqtt=true" \
+     -var="enable_frigate=true" \
+     -var="enable_grafana=true" \
+     -var="enable_influxdb=true" \
+     -var="enable_prometheus=true" \
+     -var="enable_nextcloud=true"
   ```
 
    **Note:** replace `192.168.86.38` with your actual server IP.
