@@ -15,38 +15,18 @@ resource "null_resource" "bootstrap_docker" {
   triggers = {
     docker_host = var.docker_host
   }
-  connection {
-    type = "ssh"
-    host = replace(var.docker_host, "ssh://michael@", "") # Extract IP from docker_host string
-    user = "michael"
-    # Agent is used automatically
-  }
+  provisioner "local-exec" {
+    command = <<EOT
+      HOST="${replace(var.docker_host, "ssh://michael@", "")}"
+      USER="michael"
 
-  provisioner "remote-exec" {
-    inline = [
-      # Basic deps
-      # "sudo apt-get update -y",
-      # "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
-
-      # Install Docker Engine + compose plugin (official repo)
-      # "sudo install -m 0755 -d /etc/apt/keyrings",
-      # "sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc",
-      # "sudo chmod a+r /etc/apt/keyrings/docker.asc",
-      # "sudo bash -lc 'source /etc/os-release; cat > /etc/apt/sources.list.d/docker.sources <<EOF\nTypes: deb\nURIs: https://download.docker.com/linux/ubuntu\nSuites: $${UBUNTU_CODENAME:-$VERSION_CODENAME}\nComponents: stable\nSigned-By: /etc/apt/keyrings/docker.asc\nEOF'",
-      # "sudo apt-get update -y",
-      # "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
-
-      # Enable docker at boot
-      # "sudo systemctl enable --now docker",
-
-      # Ensure current user is in docker group (requires relogin, but good for future)
-      # "sudo usermod -aG docker $USER || true",
-
-      # Create stack dirs
-      "sudo mkdir -p /opt/portainer /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/nginxproxymanager /opt/startpage /opt/vaultwarden /opt/hoarder /opt/docmost /opt/octoprint /opt/arrfiles /opt/tautulli /opt/overseerr /opt/radarr /opt/sonarr /opt/lidarr /opt/bazarr /opt/prowlarr /opt/qbittorrent /opt/nzbget /opt/homeassistant /opt/zigbee2mqtt /opt/frigate /opt/grafana /opt/influxdb /opt/prometheus /opt/media",
-      "sudo mkdir -p /opt/plex/media /opt/jellyfin/cache /opt/jellyfin/media /opt/immich/library /opt/navidrome/music /opt/audiobookshelf/audiobooks /opt/audiobookshelf/podcasts /opt/nextcloud/html /opt/nginxproxymanager/data /opt/nginxproxymanager/letsencrypt /opt/startpage/config /opt/vaultwarden/data /opt/hoarder/data /opt/docmost/uploads /opt/docmost/db /opt/octoprint/config /opt/arrfiles/config /opt/arrfiles/database /opt/tautulli/config /opt/overseerr/config /opt/radarr/config /opt/sonarr/config /opt/lidarr/config /opt/bazarr/config /opt/prowlarr/config /opt/qbittorrent/config /opt/media/downloads /opt/nzbget/config /opt/homeassistant/config /opt/zigbee2mqtt/data /opt/frigate/config /opt/frigate/cache /opt/grafana/data /opt/influxdb/data /opt/prometheus/data",
-      "sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/nginxproxymanager /opt/startpage /opt/vaultwarden /opt/hoarder /opt/docmost /opt/octoprint /opt/arrfiles /opt/tautulli /opt/overseerr /opt/radarr /opt/sonarr /opt/lidarr /opt/bazarr /opt/prowlarr /opt/qbittorrent /opt/nzbget /opt/homeassistant /opt/zigbee2mqtt /opt/frigate /opt/grafana /opt/influxdb /opt/prometheus /opt/media || true",
-    ]
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$USER@$HOST" 'bash -s' <<'REMOTE_SCRIPT'
+        # Create stack dirs
+        sudo mkdir -p /opt/portainer /opt/plex /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/nginxproxymanager /opt/startpage /opt/vaultwarden /opt/hoarder /opt/docmost /opt/octoprint /opt/arrfiles /opt/tautulli /opt/overseerr /opt/radarr /opt/sonarr /opt/lidarr /opt/bazarr /opt/prowlarr /opt/qbittorrent /opt/nzbget /opt/homeassistant /opt/zigbee2mqtt /opt/frigate /opt/grafana /opt/influxdb /opt/prometheus /opt/media
+        sudo mkdir -p /opt/plex/media /opt/jellyfin/cache /opt/jellyfin/media /opt/immich/library /opt/navidrome/music /opt/audiobookshelf/audiobooks /opt/audiobookshelf/podcasts /opt/nextcloud/html /opt/nginxproxymanager/data /opt/nginxproxymanager/letsencrypt /opt/startpage/config /opt/vaultwarden/data /opt/hoarder/data /opt/docmost/uploads /opt/docmost/db /opt/octoprint/config /opt/arrfiles/config /opt/arrfiles/database /opt/tautulli/config /opt/overseerr/config /opt/radarr/config /opt/sonarr/config /opt/lidarr/config /opt/bazarr/config /opt/prowlarr/config /opt/qbittorrent/config /opt/media/downloads /opt/nzbget/config /opt/homeassistant/config /opt/zigbee2mqtt/data /opt/frigate/config /opt/frigate/cache /opt/grafana/data /opt/influxdb/data /opt/prometheus/data
+        sudo chown -R 1000:1000 /opt/plex /opt/portainer /opt/jellyfin /opt/immich /opt/navidrome /opt/audiobookshelf /opt/nextcloud /opt/nginxproxymanager /opt/startpage /opt/vaultwarden /opt/hoarder /opt/docmost /opt/octoprint /opt/arrfiles /opt/tautulli /opt/overseerr /opt/radarr /opt/sonarr /opt/lidarr /opt/bazarr /opt/prowlarr /opt/qbittorrent /opt/nzbget /opt/homeassistant /opt/zigbee2mqtt /opt/frigate /opt/grafana /opt/influxdb /opt/prometheus /opt/media || true
+      REMOTE_SCRIPT
+    EOT
   }
 }
 
