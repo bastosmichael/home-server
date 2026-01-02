@@ -144,7 +144,7 @@ resource "null_resource" "deploy_stacks" {
               return 0
             fi
 
-            echo "Waiting for containers to settle... ($elapsed/${timeout}s)"
+            echo "Waiting for containers to settle... ($elapsed/$${timeout}s)"
             sleep $interval
             elapsed=$((elapsed + interval))
           done
